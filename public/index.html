@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus 500 — Student Growth & Ambassador Platform</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js for real interactive metrics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900 flex flex-col">
+
+  <!-- TOP NOTIFICATION BANNER (Real-time DB Progress) -->
+  <aside aria-label="Campaign Announcement" class="bg-slate-900 text-white text-xs sm:text-sm py-2 px-4 text-center font-medium flex items-center justify-center gap-2">
+    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30">7-Day Sprint</span>
+    <span>⚡ <span id="banner-reg-count">...</span>/500 final-year engineers registered.</span>
+    <a href="#register-section" onclick="navigateTo('register')" class="underline hover:text-blue-300 font-semibold ml-1">Claim your invite &rarr;</a>
+  </aside>
+
+  <!-- NAVIGATION -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <a href="/" onclick="navigateTo('landing'); return false;" class="flex items-center gap-2 cursor-pointer">
+        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-base shadow-sm">C</div>
+        <span class="font-extrabold text-xl tracking-tight text-slate-900">Campus <span class="text-blue-600">500</span></span>
+      </a>
+
+      <nav class="flex items-center gap-3 sm:gap-6 text-sm font-semibold">
+        <button onclick="navigateTo('landing')" class="text-slate-600 hover:text-blue-600 transition">About</button>
+        <button onclick="navigateTo('leaderboard')" class="text-slate-600 hover:text-blue-600 transition">Leaderboard</button>
+        <button id="my-dashboard-btn" onclick="navigateTo('student-dashboard')" class="hidden text-slate-600 hover:text-blue-600 transition">My Rank</button>
+        <button onclick="navigateTo('admin')" class="px-3 py-1.5 text-xs font-semibold rounded-md border border-slate-300 hover:bg-slate-100 transition text-slate-700 flex items-center gap-1.5">
+          <i data-lucide="shield" class="w-3.5 h-3.5"></i> Admin
+        </button>
+        <button onclick="navigateTo('register')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm transition text-sm">Register</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="flex-grow">
+    
+    <!-- 1. LANDING PAGE VIEW -->
+    <section id="view-landing" class="tab-content">
+      <!-- HERO -->
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 pt-12 pb-16 text-center">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold mb-6">
+          <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+          Exclusive to Final-Year Engineering Cohort 2027
+        </div>
+        <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight mb-5">
+          Build. Learn. <span class="text-blue-600">Get Ahead.</span>
+        </h1>
+        <p class="max-w-2xl mx-auto text-base sm:text-lg text-slate-600 mb-8 leading-relaxed">
+          Join 500+ final-year engineering students building their next opportunity with modern technology, practical software projects, and peer collaboration.
+        </p>
+
+        <!-- CTA BUTTONS -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
+          <button onclick="navigateTo('register')" class="w-full sm:w-auto px-7 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+            Register Now <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+          <a href="#how-it-works" class="w-full sm:w-auto px-6 py-3.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-semibold rounded-xl transition text-center">
+            How It Works
+          </a>
+        </div>
+
+        <!-- DYNAMIC PROGRESS COMPONENT -->
+        <div class="max-w-lg mx-auto bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <div class="flex items-center justify-between text-sm font-bold text-slate-700 mb-2">
+            <span class="flex items-center gap-1.5"><i data-lucide="users" class="w-4 h-4 text-blue-600"></i> Registrations Progress</span>
+            <span class="text-blue-600 font-mono text-base"><span id="hero-progress-total">0</span> / 500</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden">
+            <div id="hero-progress-bar" class="bg-blue-600 h-full rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+          </div>
+          <p class="text-xs text-slate-500 mt-2 text-left">
+            🔥 <span id="hero-remaining-count">500</span> slots remaining for the 7-day launch cohort.
+          </p>
+        </div>
+      </div>
+
+      <!-- VALUE PROPOSITION CARDS -->
+      <div class="bg-white border-y border-slate-200 py-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+          <div class="text-center mb-12">
+            <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">Why Register for Campus 500?</h2>
+            <p class="text-slate-600 text-sm mt-2">Focused outcomes built for final-year engineering career readiness.</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-blue-300 transition">
+              <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-4">
+                <i data-lucide="code" class="w-5 h-5"></i>
+              </div>
+              <h3 class="font-bold text-slate-900 mb-1">Build Real Projects</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">Work on practical technology projects that demonstrate full-stack problem solving.</p>
+            </div>
+
+            <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-blue-300 transition">
+              <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4">
+                <i data-lucide="file-badge" class="w-5 h-5"></i>
+              </div>
+              <h3 class="font-bold text-slate-900 mb-1">Strengthen Resume</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">Add meaningful project architecture and live deployment links to your technical profile.</p>
+            </div>
+
+            <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-blue-300 transition">
+              <div class="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center mb-4">
+                <i data-lucide="cpu" class="w-5 h-5"></i>
+              </div>
+              <h3 class="font-bold text-slate-900 mb-1">Learn AI Workflows</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">Explore modern AI tools, generative integrations, and developer velocity patterns.</p>
+            </div>
+
+            <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-blue-300 transition">
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4">
+                <i data-lucide="users" class="w-5 h-5"></i>
+              </div>
+              <h3 class="font-bold text-slate-900 mb-1">Join Your Peers</h3>
+              <p class="text-xs text-slate-600 leading-relaxed">Connect with ambitious engineering students across top colleges in the country.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOW IT WORKS -->
+      <div id="how-it-works" class="max-w-5xl mx-auto px-4 sm:px-6 py-20">
+        <div class="text-center mb-14">
+          <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">How The Ambassador Loop Works</h2>
+          <p class="text-slate-600 text-sm mt-1">Simple 3-step virality loop built for student groups.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center relative z-10 shadow-sm">
+            <div class="w-12 h-12 mx-auto rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-lg mb-4">1</div>
+            <h3 class="font-bold text-base text-slate-900 mb-2">Register in 30 Seconds</h3>
+            <p class="text-xs text-slate-600">Enter your branch, college and email to generate your personalized ambassador profile.</p>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center relative z-10 shadow-sm">
+            <div class="w-12 h-12 mx-auto rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-lg mb-4">2</div>
+            <h3 class="font-bold text-base text-slate-900 mb-2">Share With Your Peers</h3>
+            <p class="text-xs text-slate-600">Get your unique link and 1-tap WhatsApp message to invite your college peers & study groups.</p>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center relative z-10 shadow-sm">
+            <div class="w-12 h-12 mx-auto rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-lg mb-4">3</div>
+            <h3 class="font-bold text-base text-slate-900 mb-2">Climb The Leaderboard</h3>
+            <p class="text-xs text-slate-600">Every peer who joins through your link updates your real-time ranking and milestone unlocks.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. REGISTRATION PAGE VIEW -->
+    <section id="view-register" class="tab-content hidden py-12 px-4 sm:px-6">
+      <div class="max-w-xl mx-auto bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-lg">
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-3">
+            Campus 500 Sprint
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Student Registration</h2>
+          <p class="text-slate-600 text-xs sm:text-sm mt-1">Register to receive your unique referral link and ambassador rank.</p>
+        </div>
+
+        <!-- Referral banner if referred -->
+        <div id="referred-banner" class="hidden mb-6 p-3.5 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 flex items-center gap-2">
+          <i data-lucide="gift" class="w-4 h-4 text-blue-600 flex-shrink-0"></i>
+          <span>Referred by ambassador code: <strong id="referred-code-display" class="font-mono"></strong></span>
+        </div>
+
+        <div id="register-error" class="hidden mb-6 p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700"></div>
+
+        <form id="student-registration-form" onsubmit="handleRegistration(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Full Name</label>
+            <input type="text" id="reg-name" required placeholder="e.g. Arjun Sharma" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
+              <input type="email" id="reg-email" required placeholder="you@college.edu" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Phone Number (WhatsApp)</label>
+              <input type="tel" id="reg-phone" required placeholder="9876543210" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">College / University</label>
+            <input type="text" id="reg-college" required placeholder="e.g. Delhi Technological University" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Engineering Branch</label>
+              <select id="reg-branch" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-blue-600 focus:outline-none">
+                <option value="Computer Science & Engg">Computer Science & Engg</option>
+                <option value="Information Technology">Information Technology</option>
+                <option value="Electronics & Comm (ECE)">Electronics & Comm (ECE)</option>
+                <option value="Data Science & AI">Data Science & AI</option>
+                <option value="Electrical Engineering">Electrical Engineering</option>
+                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                <option value="Other">Other Branch</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Graduation Year</label>
+              <input type="number" id="reg-year" value="2027" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none">
+            </div>
+          </div>
+
+          <button type="submit" id="btn-submit-reg" class="w-full mt-4 py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2">
+            <span>Register & Get My Referral Link</span>
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 3. SUCCESS CELEBRATION VIEW -->
+    <section id="view-success" class="tab-content hidden py-12 px-4 sm:px-6">
+      <div class="max-w-xl mx-auto bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-lg text-center">
+        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i data-lucide="check" class="w-8 h-8"></i>
+        </div>
+        <h2 class="text-3xl font-extrabold text-slate-900 mb-2">You're in! 🎉</h2>
+        <p class="text-slate-600 text-sm mb-6">You're officially registered for Campus 500. Start sharing your link to climb the leaderboard.</p>
+
+        <!-- Referral Link Box -->
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 mb-6 text-left">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-xs font-bold text-slate-500 uppercase">Your Referral Code</span>
+            <span id="succ-ref-code" class="font-mono text-base font-extrabold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-md"></span>
+          </div>
+
+          <label class="block text-xs text-slate-500 mb-1 mt-3">Your Shareable URL</label>
+          <div class="flex gap-2">
+            <input type="text" id="succ-share-url" readonly class="w-full text-xs font-mono bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-700 focus:outline-none">
+            <button onclick="copyReferralLink('succ-share-url')" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition flex-shrink-0">
+              Copy
+            </button>
+          </div>
+
+          <!-- Direct Share Buttons -->
+          <div class="mt-4 flex flex-col sm:flex-row gap-2.5">
+            <button id="succ-btn-whatsapp" onclick="shareOnWhatsApp()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+              <i data-lucide="send" class="w-4 h-4"></i> Share on WhatsApp
+            </button>
+            <button onclick="openStudentDashboard()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+              <i data-lucide="layout-dashboard" class="w-4 h-4"></i> View My Dashboard
+            </button>
+          </div>
+        </div>
+
+        <!-- Impact Snippet -->
+        <div class="grid grid-cols-3 gap-3 border-t border-slate-100 pt-6">
+          <div class="p-3 rounded-xl bg-slate-50">
+            <p class="text-xs text-slate-500 font-semibold">Brought by You</p>
+            <p id="succ-brought" class="text-xl font-extrabold text-slate-900 mt-1">0</p>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50">
+            <p class="text-xs text-slate-500 font-semibold">Current Rank</p>
+            <p id="succ-rank" class="text-xl font-extrabold text-blue-600 mt-1">#--</p>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50">
+            <p class="text-xs text-slate-500 font-semibold">Next Milestone</p>
+            <p id="succ-milestone" class="text-xl font-extrabold text-slate-900 mt-1">5</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. STUDENT DASHBOARD VIEW -->
+    <section id="view-student-dashboard" class="tab-content hidden py-10 px-4 sm:px-6">
+      <div class="max-w-5xl mx-auto space-y-6">
+        
+        <!-- Welcome Card -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <div class="inline-flex items-center gap-2 text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">
+              Ambassador Portal
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Welcome, <span id="dash-student-name">Student</span> 👋</h1>
+            <p id="dash-student-college" class="text-xs sm:text-sm text-slate-500 mt-1"></p>
+          </div>
+          <div class="bg-blue-50 border border-blue-200 px-4 py-2.5 rounded-xl text-left">
+            <p class="text-[11px] text-blue-700 font-bold uppercase">Your Unique Code</p>
+            <p id="dash-code-badge" class="font-mono text-lg font-black text-blue-900"></p>
+          </div>
+        </div>
+
+        <!-- 4 KPI Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs text-slate-500 font-bold">My Registrations</span>
+            <p id="dash-stat-regs" class="text-2xl sm:text-3xl font-black text-blue-600 mt-2">0</p>
+            <span class="text-[11px] text-slate-400 mt-1 block">Verified peers joined</span>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs text-slate-500 font-bold">Leaderboard Rank</span>
+            <p id="dash-stat-rank" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">#--</p>
+            <span class="text-[11px] text-slate-400 mt-1 block">Overall campaign rank</span>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs text-slate-500 font-bold">Link Clicks</span>
+            <p id="dash-stat-clicks" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">0</p>
+            <span class="text-[11px] text-slate-400 mt-1 block">Visits from your link</span>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs text-slate-500 font-bold">Conversion Rate</span>
+            <p id="dash-stat-conv" class="text-2xl sm:text-3xl font-black text-emerald-600 mt-2">0%</p>
+            <span class="text-[11px] text-slate-400 mt-1 block">Click to registration</span>
+          </div>
+        </div>
+
+        <!-- Share Box -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <h3 class="font-bold text-base text-slate-900 mb-1">Your Referral Link</h3>
+          <p class="text-xs text-slate-500 mb-4">Share this link directly into your WhatsApp groups and engineering clubs.</p>
+          
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input type="text" id="dash-share-url" readonly class="flex-grow font-mono text-xs bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-700">
+            <button onclick="copyReferralLink('dash-share-url')" class="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition">
+              Copy Link
+            </button>
+            <button onclick="shareOnWhatsApp()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2">
+              <i data-lucide="send" class="w-4 h-4"></i> WhatsApp
+            </button>
+          </div>
+        </div>
+
+        <!-- Referral Progress & Milestones -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="font-bold text-base text-slate-900">Milestone Track</h3>
+            <span id="dash-milestone-hint" class="text-xs text-blue-600 font-bold"></span>
+          </div>
+
+          <div class="grid grid-cols-4 gap-2 text-center">
+            <div id="mile-5" class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <p class="text-xs font-bold text-slate-500">Tier 1</p>
+              <p class="text-lg font-black text-slate-800 mt-1">5</p>
+              <span class="text-[10px] text-slate-400">Referrals</span>
+            </div>
+            <div id="mile-10" class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <p class="text-xs font-bold text-slate-500">Tier 2</p>
+              <p class="text-lg font-black text-slate-800 mt-1">10</p>
+              <span class="text-[10px] text-slate-400">Referrals</span>
+            </div>
+            <div id="mile-25" class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <p class="text-xs font-bold text-slate-500">Tier 3</p>
+              <p class="text-lg font-black text-slate-800 mt-1">25</p>
+              <span class="text-[10px] text-slate-400">Referrals</span>
+            </div>
+            <div id="mile-50" class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+              <p class="text-xs font-bold text-slate-500">Elite</p>
+              <p class="text-lg font-black text-slate-800 mt-1">50</p>
+              <span class="text-[10px] text-slate-400">Referrals</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leaderboard preview embedded in Student View -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <h3 class="font-bold text-base text-slate-900 mb-4">Current Top Ambassadors</h3>
+          <div id="dash-leaderboard-container" class="overflow-x-auto">
+            <!-- Dynamic table inserted by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. PUBLIC LEADERBOARD VIEW -->
+    <section id="view-leaderboard" class="tab-content hidden py-12 px-4 sm:px-6">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-8">
+          <h2 class="text-3xl font-extrabold text-slate-900">Ambassador Leaderboard</h2>
+          <p class="text-slate-600 text-sm mt-1">Real-time attribution updated on every verified student signup.</p>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs sm:text-sm">
+              <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[11px]">
+                <tr>
+                  <th class="py-3.5 px-4 sm:px-6">Rank</th>
+                  <th class="py-3.5 px-4">Ambassador</th>
+                  <th class="py-3.5 px-4">College</th>
+                  <th class="py-3.5 px-4 text-center">Clicks</th>
+                  <th class="py-3.5 px-4 text-center">Registrations</th>
+                  <th class="py-3.5 px-4 text-right">Conv. Rate</th>
+                </tr>
+              </thead>
+              <tbody id="public-leaderboard-tbody" class="divide-y divide-slate-100 font-medium">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. ADMIN DASHBOARD & GROWTH CONTROL SUITE -->
+    <section id="view-admin" class="tab-content hidden py-10 px-4 sm:px-6">
+      <!-- Admin Login Overlay if not authed -->
+      <div id="admin-login-modal" class="max-w-md mx-auto bg-white border border-slate-200 rounded-3xl p-8 shadow-xl">
+        <div class="text-center mb-6">
+          <div class="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <i data-lucide="lock" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-2xl font-black text-slate-900">Campaign Admin Access</h3>
+          <p class="text-xs text-slate-500 mt-1">Growth organizer credentials for Campus 500 prototype.</p>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-amber-800 mb-5">
+          <strong>Demo Credentials:</strong><br>
+          Email: <code class="font-mono font-bold">admin@campus500.demo</code><br>
+          Password: <code class="font-mono font-bold">demo123</code>
+        </div>
+
+        <div id="admin-login-error" class="hidden mb-4 p-3 bg-red-50 text-red-700 text-xs rounded-xl"></div>
+
+        <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Admin Email</label>
+            <input type="email" id="admin-email" value="admin@campus500.demo" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+            <input type="password" id="admin-password" value="demo123" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+          </div>
+          <button type="submit" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl transition">
+            Sign In to Dashboard
+          </button>
+        </form>
+      </div>
+
+      <!-- Authenticated Admin Content -->
+      <div id="admin-authenticated-view" class="hidden max-w-6xl mx-auto space-y-8">
+        
+        <!-- Header & Demo Actions -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5">
+          <div>
+            <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Growth Operations</span>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900">Campus 500 — Campaign Dashboard</h1>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="resetDemoData()" class="px-3.5 py-2 text-xs font-semibold bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition text-slate-700 flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reseed Demo Data
+            </button>
+            <button onclick="adminLogout()" class="px-3.5 py-2 text-xs font-semibold bg-red-50 text-red-700 rounded-xl hover:bg-red-100 transition">
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <!-- 5 MAIN KPI CARDS -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-slate-500">Total Registrations</span>
+            <p id="adm-kpi-total" class="text-2xl font-black text-blue-600 mt-2">0 / 500</p>
+            <span class="text-[11px] text-slate-400 mt-1 block" id="adm-kpi-pct">0% of sprint goal</span>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-slate-500">Remaining</span>
+            <p id="adm-kpi-remaining" class="text-2xl font-black text-slate-900 mt-2">500</p>
+            <span class="text-[11px] text-slate-400 mt-1 block">To reach target</span>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-slate-500">Today's Registrations</span>
+            <p id="adm-kpi-today" class="text-2xl font-black text-indigo-600 mt-2">0</p>
+            <span class="text-[11px] text-slate-400 mt-1 block">Past 24 hours</span>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-slate-500">Active Ambassadors</span>
+            <p id="adm-kpi-ambassadors" class="text-2xl font-black text-slate-900 mt-2">0</p>
+            <span class="text-[11px] text-slate-400 mt-1 block">Generating referrals</span>
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-bold text-slate-500">Referral Regs</span>
+            <p id="adm-kpi-referral-regs" class="text-2xl font-black text-emerald-600 mt-2">0</p>
+            <span class="text-[11px] text-slate-400 mt-1 block" id="adm-kpi-virality">0% viral</span>
+          </div>
+        </div>
+
+        <!-- AI CAMPAIGN COPILOT CARD -->
+        <div class="bg-gradient-to-br from-slate-900 to-blue-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+          <div class="relative z-10">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <div>
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold mb-2">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> AI Campaign Copilot
+                </div>
+                <h3 class="text-xl sm:text-2xl font-extrabold">Real-Time Growth Recommendations</h3>
+                <p class="text-xs sm:text-sm text-slate-300 mt-1">Synthesizes daily registration velocity, channel conversion, and top ambassador attribution.</p>
+              </div>
+
+              <button id="btn-run-copilot" onclick="runCopilotAnalysis()" class="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 flex-shrink-0">
+                <i data-lucide="cpu" class="w-4 h-4"></i> Analyze Campaign
+              </button>
+            </div>
+
+            <!-- Copilot Output Box -->
+            <div id="copilot-results" class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Campaign Health</span>
+                <span id="copilot-health" class="px-3 py-1 rounded-full text-xs font-extrabold bg-blue-500/30 text-blue-200 border border-blue-400/30">Ready for Analysis</span>
+              </div>
+              <div>
+                <span class="text-xs font-bold text-blue-300 uppercase block mb-1">Observation</span>
+                <p id="copilot-obs" class="text-sm text-slate-200">Click "Analyze Campaign" to process live database metrics.</p>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div class="bg-black/20 p-4 rounded-xl border border-white/5">
+                  <span class="text-xs font-bold text-emerald-400 uppercase block mb-1">Strategic Recommendation</span>
+                  <p id="copilot-rec" class="text-xs text-slate-200">Data awaiting synthesis...</p>
+                </div>
+                <div class="bg-black/20 p-4 rounded-xl border border-white/5">
+                  <span class="text-xs font-bold text-amber-300 uppercase block mb-1">Suggested Immediate Action</span>
+                  <p id="copilot-action" class="text-xs text-slate-200">Data awaiting synthesis...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHARTS SECTION -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <h4 class="font-bold text-sm text-slate-900 mb-4">Registrations by Day (Past 7 Days)</h4>
+            <div class="h-64">
+              <canvas id="chart-daily-registrations"></canvas>
+            </div>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <h4 class="font-bold text-sm text-slate-900 mb-4">Registrations by Acquisition Channel</h4>
+            <div class="h-64 flex items-center justify-center">
+              <canvas id="chart-channel-sources"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- BUDGET TRACKER SECTION -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+              <h3 class="font-bold text-base text-slate-900">Campaign Budget Tracker</h3>
+              <p class="text-xs text-slate-500">Total Campaign Budget: ₹2,000</p>
+            </div>
+            <!-- Add Expense Modal Toggle -->
+            <button onclick="toggleExpenseForm()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Expense
+            </button>
+          </div>
+
+          <!-- Add Expense Inline Form -->
+          <div id="expense-form-container" class="hidden mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+            <form onsubmit="handleCreateExpense(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+              <select id="exp-category" required class="px-3 py-2 border rounded-lg bg-white">
+                <option value="Ambassador incentives">Ambassador incentives</option>
+                <option value="Creative/design">Creative/design</option>
+                <option value="Paid promotion">Paid promotion</option>
+                <option value="Other">Other</option>
+              </select>
+              <input type="number" id="exp-amount" step="0.5" placeholder="Amount (₹)" required class="px-3 py-2 border rounded-lg">
+              <input type="text" id="exp-desc" placeholder="Expense description" class="px-3 py-2 border rounded-lg">
+              <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition">Save Expense</button>
+            </form>
+          </div>
+
+          <!-- Budget KPI Grid -->
+          <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-xs text-slate-500 font-bold">Total Spent</span>
+              <p id="bud-spent" class="text-xl font-extrabold text-slate-900 mt-1">₹0</p>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-xs text-slate-500 font-bold">Remaining Budget</span>
+              <p id="bud-remaining" class="text-xl font-extrabold text-emerald-600 mt-1">₹2,000</p>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-xs text-slate-500 font-bold">Cost Per Registration</span>
+              <p id="bud-cpr" class="text-xl font-extrabold text-blue-600 mt-1">₹0.00</p>
+            </div>
+          </div>
+
+          <!-- Expense List -->
+          <div id="expense-items-list" class="divide-y divide-slate-100 text-xs">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- SEARCHABLE STUDENT RECORDS TABLE -->
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+          <div class="p-6 border-b border-slate-200">
+            <h3 class="font-bold text-base text-slate-900 mb-3">Registered Students Table</h3>
+            
+            <!-- Filters -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <input type="text" id="filter-search" oninput="debounceStudentSearch()" placeholder="Search by name, email, or college..." class="text-xs px-3.5 py-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600">
+              <select id="filter-college" onchange="loadAdminStudents()" class="text-xs px-3.5 py-2.5 border rounded-xl bg-white focus:outline-none">
+                <option value="">All Colleges</option>
+              </select>
+              <select id="filter-source" onchange="loadAdminStudents()" class="text-xs px-3.5 py-2.5 border rounded-xl bg-white focus:outline-none">
+                <option value="">All Acquisition Sources</option>
+                <option value="ambassador">Ambassador Referral</option>
+                <option value="direct">Direct</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="college_club">College Club</option>
+                <option value="email">Email</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[11px]">
+                <tr>
+                  <th class="py-3 px-4">Name</th>
+                  <th class="py-3 px-4">Email</th>
+                  <th class="py-3 px-4">College</th>
+                  <th class="py-3 px-4">Branch</th>
+                  <th class="py-3 px-4">Referral Code</th>
+                  <th class="py-3 px-4">Referred By</th>
+                  <th class="py-3 px-4">Source</th>
+                  <th class="py-3 px-4">Date</th>
+                </tr>
+              </thead>
+              <tbody id="admin-students-tbody" class="divide-y divide-slate-100">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p>&copy; Campus 500 Prototype &bull; Growth & Marketing Platform</p>
+      <p class="font-mono text-[11px]">Built for Final-Year Engineering Cohorts</p>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    // Initialize Lucide icons on page load
+    lucide.createIcons();
+  </script>
+</body>
+</html>
